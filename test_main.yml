@@ -1,0 +1,9 @@
+---
+- name: 'main script'
+  hosts: localhost
+  connection: local
+  tasks: 
+    - name: call afs playbook
+      ansible.builtin.include_tasks: '2.6.0-afs-mounts.yml'
+      tags:
+        - test 

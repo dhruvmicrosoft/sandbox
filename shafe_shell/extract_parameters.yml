@@ -1,0 +1,28 @@
+- name: extract SID
+  ansible.builtin.shell:
+    cmd: sudo ls /usr/sap | grep -i '^[a-zA-Z]\{3\}$' | head -n 1
+  register: sid
+
+- name: extract instance_number_ascs
+  ansible.builtin.shell: 
+    cmd: sudo ls /usr/sap/{{sid}} | grep -Eo 'ASCS[0-9]{2}' | head -n 1 | grep -o '[0-9]\{2\}$'
+  register: instance_number_ascs
+  when: key_node=="ascs"
+
+- name: extract instance_number_ers
+  ansible.builtin.shell: 
+    cmd: sudo ls /usr/sap/{{sid}} | grep -Eo 'ERS[0-9]{2}' | head -n 1 | grep -o '[0-9]\{2\}$'
+  register: instance_number_ers
+  when: key_node=="ers"
+
+- name: extract instance_number_app
+  ansible.builtin.shell: 
+    cmd: sudo ls /usr/sap/{{sid}} | grep -Eo 'D[0-9]{2}' | head -n 1 | grep -o '[0-9]\{2\}$'
+  register: instance_number_app
+  when: key_node=="app"
+
+- name: extract instance_db
+  ansible.builtin.shell: 
+    cmd: sudo ls /usr/sap/{{sid}} | grep -o 'HDB[0-9]\{2\}' | head -n 1 | grep -o '[0-9]\{2\}$'
+  register: instance_number_db
+  when: key_node=="hana"

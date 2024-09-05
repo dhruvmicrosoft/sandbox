@@ -1,0 +1,51 @@
+# pick a following option 
+# ascs, ers, app, hana, 
+key_node: testing
+instance_number_ascs: 10
+instance_number_ers: 10
+instance_number_app: 11
+instance_number_db: 12
+
+log_files_testing_node: 
+  - "/home/dhruv/scratch/shafe_shell/inventory.yml"
+  - "/home/dhruv/scratch/shafe_shell/main.yml"
+  - "/home/dhruv/scratch/shafe_shell/vars.yml"
+
+log_files_ascs_node: 
+    - "/usr/sap/{{sid}}/ASCS{{instance_number_ascs}}/work/dev_enq_server"
+    - "/usr/sap/{{sid}}/ASCS{{instance_number_ascs}}/work/sapstartsrv.log"
+    - "/usr/sap/{{sid}}/ASCS{{instance_number_ascs}}/work/dev_ms"
+    - "/usr/sap/{{sid}}/SYS/profile/{{sid}}_ASCS{{instance_number_ascs}}_*"
+
+log_files_ers_node: 
+  - "/usr/sap/{{sid}}/ERS{{instance_number_ers}}/work/dev_enq_replicator"
+  - "/usr/sap/{{sid}}/ERS{{instance_number_ers}}/work/dev_sapstart"
+  - "/usr/sap/{{sid}}/SYS/profile/{{sid}}_ERS{{instance_number_ers}}_*"
+
+log_files_app_node: 
+  - "/usr/sap/{{sid}}/D{{instance_number_app}}/work/dev_disp"
+  - "/usr/sap/{{sid}}/D{{instance_number_app}}/work/dev_w0"
+  - "/usr/sap/{{sid}}/D{{instance_number_app}}/work/dev_w1"
+  - "/usr/sap/{{sid}}/SYS/profile/{{sid}}_D{{instance_number_app}}_{{ansible_hostname}}"
+
+log_files_hana_node: 
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/nameserver_alert_{{ansible_hostname}}.trc"
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/nameserver_{{ansible_hostname}}.*.*.trc"
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/preprocessor_{{ansible_hostname}}.*.*.trc"
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/backup.log"
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/available.log"
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/hdbdaemon.status"
+  - "/usr/sap/{{sid}}/SYS/global/hdb/custom/config/global.ini"
+  - "/usr/sap/{{sid}}/SYS/global/hdb/custom/config/indexserver.ini"
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/DB_{{sid}}/indexserver_alert_{{ansible_hostname}}.trc"
+  - "/usr/sap/{{sid}}/HDB{{instance_number_db}}/{{ansible_hostname}}/trace/DB_{{sid}}/indexserver_{{ansible_hostname}}.*.*.trc"
+
+log_files: 
+  - "/var/log/pacemaker/pacemaker.log"
+  - "/var/log/cluster/corosync.log"
+  - "/var/lib/pacemaker/cib/cib.xml"
+  - "/etc/pacemaker/pacemaker.conf"
+  - "/etc/corosync/corosync.conf"
+  - "/var/log/messages" # or /var/log/syslog
+  - "/var/log/zypper.log"
+  - "/var/log/boot.msg"

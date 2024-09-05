@@ -1,0 +1,39 @@
+---
+- name: data collection for microsoft copilot 
+  connection: local
+  hosts: localhost
+  gather_facts: true
+  vars_files:
+    - vars.yml
+  
+  tasks: 
+    - name: run extract parameters playbook
+      ansible.builtin.include_tasks: extract_parameters.yml
+
+    - name: log files system dependent to be collected
+      ansible.builtin.set_fact:
+        log_files_system: "{{ item }}"
+      loop: "{{ query('ansible.builtin.vars', 'log_files'+ '_' + key_node + '_node')}}"
+
+    - name: common log files to be collected
+      ansible.builtin.set_fact:
+        log_files_common: "{{ item }}"
+      loop: "{{ query('ansible.builtin.vars', 'log_files')}}"
+
+    - name: combine system and common log files
+      ansible.builtin.set_fact:
+        log_files_final: "{{ log_files_system + log_files_common}}"
+      
+    - name: debug
+      ansible.builtin.debug:
+        var: log_files_final
+
+    - name: sync of src files and bring them to local machine
+      ansible.posix.synchronize:
+        mode: pull
+        src: "{{ item }}"
+        dest: /home/dhruv/scratch/shafe_shell/garbage
+      loop: "{{ log_files_final }}"
+      ignore_errors: true
+
+...

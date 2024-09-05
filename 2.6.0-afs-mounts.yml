@@ -6,7 +6,7 @@
 # +------------------------------------4--------------------------------------*/
 
 - name:                                "calling setting variables python script" 
-  ansible.builtin.command: 'python setting_vars.py'
+  ansible.builtin_script: 'python setting_vars.py'
   tags:
     - test
   register: check

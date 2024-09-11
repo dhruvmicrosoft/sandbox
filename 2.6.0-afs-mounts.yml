@@ -6,12 +6,21 @@
 # +------------------------------------4--------------------------------------*/
 
 - name:                                "calling setting variables python script" 
-  ansible.builtin_script: 'python setting_vars.py'
+  setting_vars: 
+    sap_id: "{{ sap_id }}"
+    hdbadm_uid: "{{ hdbadm_uid }}"
+    platform: "{{ platform }}"
+    sidadm_uid: "{{ sidadm_uid }}"
+    multi_sids: "{{ multi_sids | default(omit) }}"
+    asesidadm_uid: "{{ asesidadm_uid | default(omit)}}"
+    scs_instance_number: "{{ scs_instance_number }}"
+    pas_instance_number: "{{ pas_instance_number }}"
+    app_instance_number: "{{ app_instance_number }}"
+    list_of_servers: "{{ list_of_servers }}"
   tags:
     - test
   register: check
   #delegate_to: DESKTOP-B47NF4I
-  
 
 - name:                                "AFS Mount: Create list of all_sap_mounts to support"
   ansible.builtin.debug:

@@ -1,0 +1,7 @@
+---
+- name: Unencrypt test_document.txt
+  hosts: localhost
+  tasks:
+    - name: Unencrypt the file
+      ansible.builtin.command:
+        cmd: ansible-vault decrypt test_document.txt --vault-password-file vars/password.txt

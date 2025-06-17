@@ -1,0 +1,91 @@
+---
+# /*---------------------------------------------------------------------------8
+# |                                                                            |
+# |                  Update the AzSecPack with internal microsoft settings     |
+# |                                                                            |
+# +------------------------------------4--------------------------------------*/
+
+- hosts: "{{ sap_sid | upper }}_DB  :
+    {{ sap_sid | upper }}_SCS :
+    {{ sap_sid | upper }}_ERS :
+    {{ sap_sid | upper }}_PAS :
+    {{ sap_sid | upper }}_APP :
+    {{ sap_sid | upper }}_WEB"
+  name:                                   "Update TLS and AzSecPack"
+  gather_facts:                           true
+  tasks:
+    
+    - name:                               "Get data from Azure IMDS about the VM and set the resource group name and the virutla machine name from the response"
+      become:                             true
+      ansible.builtin.uri:
+        url:                              http://169.254.169.254/metadata/instance?api-version=2021-02-01
+        use_proxy:                        false
+        headers:
+          Metadata:                       true
+      register: vm_data
+
+    - name:                               "Set information"
+      ansible.builtin.set_fact:
+        resource_group_name:              "{{ vm_data.json.compute.resourceGroupName }}"
+        virtual_machine_name:             "{{ vm_data.json.compute.name }}"
+        monitoring_setting:               '{\"GCS_AUTO_CONFIG\":\"true\"}'
+        security_setting:                 '{\"enableGenevaUpload\":true,\"enableAutoConfig\":true}'
+
+    - name:                               "Update extension"
+      delegate_to:                        localhost
+      become:                             true
+      block:
+
+        - name:                           "Set dynamic install"
+          ansible.builtin.shell:           "az config set extension.use_dynamic_install=yes_without_prompt"
+          run_once:                        true
+
+        - name:                            "Update monitoring extension"
+          ansible.builtin.shell:           'az vm extension set --name AzureMonitorLinuxAgent --resource-group {{ resource_group_name }} --vm-name {{ virtual_machine_name }} --publisher "Microsoft.Azure.Monitor" --settings {{ monitoring_setting }} --enable-auto-upgrade true'
+          register:                        monitoring_extension_install_result
+
+        - name:                            "Update security extension"
+          ansible.builtin.shell:           'az vm extension set --name AzureSecurityLinuxAgent --resource-group {{ resource_group_name }} --vm-name {{ virtual_machine_name }} --publisher "Microsoft.Azure.Security.Monitoring" --settings {{ security_setting }} --enable-auto-upgrade true'
+          register:                        security_extension_install_result
+
+# /*---------------------------------------------------------------------------8
+    # |                                                                            |
+    # |                  Update host profile for ASCS and APP in  with TLS1.2      |
+    # |                                                                            |
+    # +------------------------------------4--------------------------------------*/
+- hosts: "{{ sap_sid | upper }}_SCS :
+    {{ sap_sid | upper }}_ERS :
+    {{ sap_sid | upper }}_PAS :
+    {{ sap_sid | upper }}_APP"
+  name:                                     "Update TLS"
+  gather_facts:                             true
+  tasks:
+    - name:                                 "Enable TLS 1.2"
+      become:                               true
+      block:
+        - name:                             "TCP Port 1129 (SAP Host Agent"
+          ansible.builtin.blockinfile:
+            path:                           "/usr/sap/hostctrl/exe/host_profile"
+            insertafter:                    EOF
+            block:  |
+                ssl/ciphersuites = 544:eAES_GCM:+eAES128:!kRSA::EC_X25519:EC_P256:EC_HIGH
+                ssl/client_ciphersuites = 562:eAES_GCM:+eAES128:!kRSA::EC_X25519:EC_P256:EC_HIGH
+
+        - name:                             "TCP Port 1129 (SAP Host Agent"
+          ansible.builtin.blockinfile:
+            path:                           "/usr/sap/{{ sap_sid | upper }}/SYS/profile/DEFAULT.PFL"
+            insertafter:                    EOF
+            block:  |
+                ssl/ciphersuites = 544:eAES_GCM:+eAES128:!kRSA::EC_X25519:EC_P256:EC_HIGH
+                ssl/client_ciphersuites = 562:eAES_GCM:+eAES128:!kRSA::EC_X25519:EC_P256:EC_HIGH
+
+        - name:                             "Validate the cipher is updated"
+          ansible.builtin.shell:            grep -q "ssl/ciphersuites = 544:eAES_GCM:+eAES128:!kRSA::EC_X25519:EC_P256:EC_HIGH" /usr/sap/hostctrl/exe/host_profile
+          register:                         validation_result
+          failed_when:                      validation_result.rc != 0
+
+        - name:                             "Reboot the machine"
+          ansible.builtin.reboot:
+            msg:                            "Rebooting the machine to apply the changes after applyin TLS 1.2 changes"
+
+...

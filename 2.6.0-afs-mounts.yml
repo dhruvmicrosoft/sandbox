@@ -18,20 +18,21 @@
     app_instance_number: "{{ app_instance_number }}"
     list_of_servers: "{{ list_of_servers }}"
   tags:
-    - test
+    - test2
   register: check
   #delegate_to: DESKTOP-B47NF4I
 
+- name: saved var 
+  ansible.builtin.set_fact: 
+    output: "[{'this_sid': {'sid': 'RH6', 'dbsid_uid': '2200', 'sidadm_uid': '2003', 'ascs_inst_no': '00', 'pas_inst_no': '00', 'app_inst_no': '00'}, 'all_sap_mounts': None, 'first_server_temp': ['rh6scs00l2a2'], 'mnt_options': {'afs_mnt_options': 'noresvport,vers=4,minorversion=1,sec=sys', 'anf_mnt_options': 'rw,nfsvers=4.1,hard,timeo=600,rsize=262144,wsize=262144,noatime,lock,_netdev,sec=sys'}, 'invocation': {'module_args': {'sap_sid': 'RH6', 'hdbadm_uid': '2200', 'platform': 'HANA', 'sidadm_uid': '2003', 'asesidadm_uid': '5002', 'scs_instance_number': '00', 'pas_instance_number': '00', 'app_instance_number': '00', 'server_name': 'rh6scs00l2a2', 'multi_sids': None}}, 'failed': False, 'changed': False, 'item': 'rh6scs00l2a2', 'ansible_loop_var': 'item'}, {'this_sid': {'sid': 'RH6', 'dbsid_uid': '2200', 'sidadm_uid': '2003', 'ascs_inst_no': '00', 'pas_inst_no': '00', 'app_inst_no': '00'}, 'all_sap_mounts': None, 'first_server_temp': ['rh6dhdb00l02a'], 'mnt_options': {'afs_mnt_options': 'noresvport,vers=4,minorversion=1,sec=sys', 'anf_mnt_options': 'rw,nfsvers=4.1,hard,timeo=600,rsize=262144,wsize=262144,noatime,lock,_netdev,sec=sys'}, 'invocation': {'module_args': {'sap_sid': 'RH6', 'hdbadm_uid': '2200', 'platform': 'HANA', 'sidadm_uid': '2003', 'asesidadm_uid': '5002', 'scs_instance_number': '00', 'pas_instance_number': '00', 'app_instance_number': '00', 'server_name': 'rh6dhdb00l02a', 'multi_sids': None}}, 'failed': False, 'changed': False, 'item': 'rh6dhdb00l02a', 'ansible_loop_var': 'item'}, {'this_sid': {'sid': 'RH6', 'dbsid_uid': '2200', 'sidadm_uid': '2003', 'ascs_inst_no': '00', 'pas_inst_no': '00', 'app_inst_no': '00'}, 'all_sap_mounts': None, 'first_server_temp': ['rh6dhdb00l12a'], 'mnt_options': {'afs_mnt_options': 'noresvport,vers=4,minorversion=1,sec=sys', 'anf_mnt_options': 'rw,nfsvers=4.1,hard,timeo=600,rsize=262144,wsize=262144,noatime,lock,_netdev,sec=sys'}, 'invocation': {'module_args': {'sap_sid': 'RH6', 'hdbadm_uid': '2200', 'platform': 'HANA', 'sidadm_uid': '2003', 'asesidadm_uid': '5002', 'scs_instance_number': '00', 'pas_instance_number': '00', 'app_instance_number': '00', 'server_name': 'rh6dhdb00l12a', 'multi_sids': None}}, 'failed': False, 'changed': False, 'item': 'rh6dhdb00l12a', 'ansible_loop_var': 'item'}]"
 - name:                                "AFS Mount: Create list of all_sap_mounts to support"
   ansible.builtin.debug:
-    msg:
+    msg: "{{ output }}"
       #- "{{ check.stdout.split }}"
-      - "{{check.stdout.splitlines() | map('from_yaml') | list }}"
+      #- "{{check.stdout.splitlines() | map('from_yaml') | list }}"
       #- "List of all the SAP mounts: {{ all_sap_mounts }}"
       #- "First server: {{ first_server_temp }}"
     #verbosity:                         2
-  tags:
-    - test
 
 # /*---------------------------------------------------------------------------8
 # |                                                                            |
